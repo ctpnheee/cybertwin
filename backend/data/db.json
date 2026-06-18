@@ -1,0 +1,77 @@
+{
+  "company": {
+    "id": 1,
+    "name": "BoulangePro SAS",
+    "sector": "Agroalimentaire (boulangerie industrielle)",
+    "employees": 85,
+    "servers": 6,
+    "clients": 70,
+    "exposedServices": [
+      "Site e-commerce",
+      "Messagerie",
+      "VPN",
+      "Portail fournisseurs"
+    ],
+    "createdAt": "2026-06-18T08:00:00.000Z",
+    "updatedAt": "2026-06-18T08:00:00.000Z"
+  },
+  "assets": [
+    {
+      "id": 1,
+      "name": "Serveur e-commerce",
+      "type": "Serveur Web",
+      "exposedToInternet": true,
+      "createdAt": "2026-06-18T08:05:00.000Z",
+      "updatedAt": "2026-06-18T08:05:00.000Z"
+    },
+    {
+      "id": 2,
+      "name": "Base clients PostgreSQL",
+      "type": "Base de données",
+      "exposedToInternet": false,
+      "createdAt": "2026-06-18T08:06:00.000Z",
+      "updatedAt": "2026-06-18T08:06:00.000Z"
+    },
+    {
+      "id": 3,
+      "name": "Pare-feu principal",
+      "type": "Pare-feu",
+      "exposedToInternet": true,
+      "createdAt": "2026-06-18T08:07:00.000Z",
+      "updatedAt": "2026-06-18T08:07:00.000Z"
+    }
+  ],
+  "vulnerabilities": [
+    {
+      "id": 1,
+      "assetId": 1,
+      "name": "Logiciel obsolète",
+      "criticality": "élevée",
+      "description": "Version du CMS non mise à jour depuis 18 mois.",
+      "createdAt": "2026-06-18T08:10:00.000Z",
+      "updatedAt": "2026-06-18T08:10:00.000Z"
+    },
+    {
+      "id": 2,
+      "assetId": 1,
+      "name": "Port exposé",
+      "criticality": "moyenne",
+      "description": "Port d'administration accessible depuis Internet.",
+      "createdAt": "2026-06-18T08:11:00.000Z",
+      "updatedAt": "2026-06-18T08:11:00.000Z"
+    },
+    {
+      "id": 3,
+      "assetId": 2,
+      "name": "Absence de sauvegarde",
+      "criticality": "élevée",
+      "description": "Aucune sauvegarde automatisée de la base clients.",
+      "createdAt": "2026-06-18T08:12:00.000Z",
+      "updatedAt": "2026-06-18T08:12:00.000Z"
+    }
+  ],
+  "counters": {
+    "asset": 3,
+    "vulnerability": 3
+  }
+}
