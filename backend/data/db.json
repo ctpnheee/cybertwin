@@ -1,19 +1,44 @@
 {
+  "companies": [
+    {
+      "id": 1,
+      "name": "BoulangePro SAS",
+      "sector": "Agroalimentaire (boulangerie industrielle)",
+      "employees": 85,
+      "servers": 6,
+      "clients": 70,
+      "exposedServices": [
+        "Site e-commerce",
+        "Messagerie",
+        "VPN",
+        "Portail fournisseurs"
+      ],
+      "createdAt": "2026-06-18T08:00:00.000Z",
+      "updatedAt": "2026-06-18T08:00:00.000Z"
+    },
+    {
+      "id": 2,
+      "name": "Tech&CO",
+      "sector": "Technologie",
+      "employees": 155,
+      "servers": 10,
+      "clients": 0,
+      "exposedServices": [],
+      "createdAt": "2026-06-19T09:46:54.762Z",
+      "updatedAt": "2026-06-19T09:46:54.762Z"
+    }
+  ],
+  "currentCompanyId": 2,
   "company": {
-    "id": 1,
-    "name": "BoulangePro SAS",
-    "sector": "Agroalimentaire (boulangerie industrielle)",
-    "employees": 85,
-    "servers": 6,
-    "clients": 70,
-    "exposedServices": [
-      "Site e-commerce",
-      "Messagerie",
-      "VPN",
-      "Portail fournisseurs"
-    ],
-    "createdAt": "2026-06-18T08:00:00.000Z",
-    "updatedAt": "2026-06-18T08:00:00.000Z"
+    "id": 2,
+    "name": "Tech&CO",
+    "sector": "Technologie",
+    "employees": 155,
+    "servers": 10,
+    "clients": 0,
+    "exposedServices": [],
+    "createdAt": "2026-06-19T09:46:54.762Z",
+    "updatedAt": "2026-06-19T09:46:54.762Z"
   },
   "assets": [
     {
@@ -22,7 +47,8 @@
       "type": "Serveur Web",
       "exposedToInternet": true,
       "createdAt": "2026-06-18T08:05:00.000Z",
-      "updatedAt": "2026-06-18T08:05:00.000Z"
+      "updatedAt": "2026-06-18T08:05:00.000Z",
+      "companyId": 1
     },
     {
       "id": 2,
@@ -30,7 +56,8 @@
       "type": "Base de données",
       "exposedToInternet": false,
       "createdAt": "2026-06-18T08:06:00.000Z",
-      "updatedAt": "2026-06-18T08:06:00.000Z"
+      "updatedAt": "2026-06-18T08:06:00.000Z",
+      "companyId": 1
     },
     {
       "id": 3,
@@ -38,7 +65,44 @@
       "type": "Pare-feu",
       "exposedToInternet": true,
       "createdAt": "2026-06-18T08:07:00.000Z",
-      "updatedAt": "2026-06-18T08:07:00.000Z"
+      "updatedAt": "2026-06-18T08:07:00.000Z",
+      "companyId": 1
+    },
+    {
+      "id": 4,
+      "companyId": 2,
+      "name": "ServeurClient",
+      "type": "Serveur Web",
+      "exposedToInternet": true,
+      "createdAt": "2026-06-19T09:47:25.723Z",
+      "updatedAt": "2026-06-19T09:47:25.723Z"
+    },
+    {
+      "id": 5,
+      "companyId": 2,
+      "name": "DataBase",
+      "type": "Base de données",
+      "exposedToInternet": false,
+      "createdAt": "2026-06-19T09:47:37.099Z",
+      "updatedAt": "2026-06-19T09:47:37.099Z"
+    },
+    {
+      "id": 6,
+      "companyId": 2,
+      "name": "ApplicationTest",
+      "type": "Application métier",
+      "exposedToInternet": false,
+      "createdAt": "2026-06-19T09:47:51.824Z",
+      "updatedAt": "2026-06-19T09:47:51.824Z"
+    },
+    {
+      "id": 7,
+      "companyId": 2,
+      "name": "Parefeu principal",
+      "type": "Pare-feu",
+      "exposedToInternet": true,
+      "createdAt": "2026-06-19T09:49:39.003Z",
+      "updatedAt": "2026-06-19T09:49:44.949Z"
     }
   ],
   "vulnerabilities": [
@@ -49,7 +113,8 @@
       "criticality": "élevée",
       "description": "Version du CMS non mise à jour depuis 18 mois.",
       "createdAt": "2026-06-18T08:10:00.000Z",
-      "updatedAt": "2026-06-18T08:10:00.000Z"
+      "updatedAt": "2026-06-18T08:10:00.000Z",
+      "companyId": 1
     },
     {
       "id": 2,
@@ -58,7 +123,8 @@
       "criticality": "moyenne",
       "description": "Port d'administration accessible depuis Internet.",
       "createdAt": "2026-06-18T08:11:00.000Z",
-      "updatedAt": "2026-06-18T08:11:00.000Z"
+      "updatedAt": "2026-06-18T08:11:00.000Z",
+      "companyId": 1
     },
     {
       "id": 3,
@@ -67,11 +133,43 @@
       "criticality": "élevée",
       "description": "Aucune sauvegarde automatisée de la base clients.",
       "createdAt": "2026-06-18T08:12:00.000Z",
-      "updatedAt": "2026-06-18T08:12:00.000Z"
+      "updatedAt": "2026-06-18T08:12:00.000Z",
+      "companyId": 1
+    },
+    {
+      "id": 4,
+      "companyId": 2,
+      "assetId": 4,
+      "name": "Logiciel obsolète",
+      "criticality": "élevée",
+      "description": "",
+      "createdAt": "2026-06-19T09:48:00.578Z",
+      "updatedAt": "2026-06-19T09:48:00.578Z"
+    },
+    {
+      "id": 5,
+      "companyId": 2,
+      "assetId": 5,
+      "name": "Absence de sauvegarde",
+      "criticality": "élevée",
+      "description": "",
+      "createdAt": "2026-06-19T09:48:29.814Z",
+      "updatedAt": "2026-06-19T09:48:29.814Z"
+    },
+    {
+      "id": 6,
+      "companyId": 2,
+      "assetId": 7,
+      "name": "Port exposé",
+      "criticality": "moyenne",
+      "description": "",
+      "createdAt": "2026-06-19T09:50:08.986Z",
+      "updatedAt": "2026-06-19T09:50:08.986Z"
     }
   ],
   "counters": {
-    "asset": 3,
-    "vulnerability": 3
+    "company": 2,
+    "asset": 7,
+    "vulnerability": 6
   }
 }

@@ -21,6 +21,22 @@ function validateAsset(body, { partial = false } = {}) {
   }
 }
 
+function currentCompanyId(db) {
+  const id = Number(db.currentCompanyId ?? db.company?.id);
+  return Number.isInteger(id) ? id : null;
+}
+
+function scopedAssets(db) {
+  const companyId = currentCompanyId(db);
+  if (companyId === null) return db.assets;
+  return db.assets.filter((asset) => asset.companyId === companyId);
+}
+
+function scopedVulnerabilities(db) {
+  const assetIds = scopedAssets(db).map((asset) => asset.id);
+  return db.vulnerabilities.filter((vulnerability) => assetIds.includes(vulnerability.assetId));
+}
+
 function withVulnerabilities(asset, vulnerabilities) {
   return {
     ...asset,
@@ -28,73 +44,92 @@ function withVulnerabilities(asset, vulnerabilities) {
   };
 }
 
-// GET /assets - liste des actifs (avec leurs vulnérabilités)
+// GET /assets - liste des actifs de l'entreprise sélectionnée avec leurs vulnérabilités.
 router.get('/', (req, res) => {
   const db = readDb();
-  const assets = db.assets.map((asset) => withVulnerabilities(asset, db.vulnerabilities));
+  const vulnerabilities = scopedVulnerabilities(db);
+  const assets = scopedAssets(db).map((asset) => withVulnerabilities(asset, vulnerabilities));
   res.json(assets);
 });
 
-// GET /assets/:id - détail d'un actif
+// GET /assets/:id - détail d'un actif de l'entreprise sélectionnée.
 router.get('/:id', (req, res) => {
   const db = readDb();
   const id = Number(req.params.id);
-  const asset = db.assets.find((a) => a.id === id);
+  const asset = scopedAssets(db).find((a) => a.id === id);
+
   if (!asset) {
     throw new ApiError(404, `Actif ${id} introuvable.`);
   }
-  res.json(withVulnerabilities(asset, db.vulnerabilities));
+
+  res.json(withVulnerabilities(asset, scopedVulnerabilities(db)));
 });
 
-// POST /assets - ajouter un actif
+// POST /assets - ajouter un actif à l'entreprise sélectionnée.
 router.post('/', (req, res) => {
   const db = readDb();
+
   validateAsset(req.body, { partial: false });
+
   const now = new Date().toISOString();
   const asset = {
     id: nextId(db, 'asset'),
+    companyId: currentCompanyId(db),
     name: req.body.name.trim(),
     type: req.body.type,
     exposedToInternet: toBoolean(req.body.exposedToInternet),
     createdAt: now,
     updatedAt: now
   };
+
   db.assets.push(asset);
   writeDb(db);
-  res.status(201).json(withVulnerabilities(asset, db.vulnerabilities));
+
+  res.status(201).json(withVulnerabilities(asset, scopedVulnerabilities(db)));
 });
 
-// PUT /assets/:id - modifier un actif
+// PUT /assets/:id - modifier un actif de l'entreprise sélectionnée.
 router.put('/:id', (req, res) => {
   const db = readDb();
   const id = Number(req.params.id);
-  const asset = db.assets.find((a) => a.id === id);
+  const allowedIds = scopedAssets(db).map((asset) => asset.id);
+  const asset = db.assets.find((a) => a.id === id && allowedIds.includes(a.id));
+
   if (!asset) {
     throw new ApiError(404, `Actif ${id} introuvable.`);
   }
+
   validateAsset(req.body, { partial: true });
+
   const has = (key) => Object.prototype.hasOwnProperty.call(req.body, key);
 
   if (has('name')) asset.name = req.body.name.trim();
   if (has('type')) asset.type = req.body.type;
   if (has('exposedToInternet')) asset.exposedToInternet = toBoolean(req.body.exposedToInternet);
+
   asset.updatedAt = new Date().toISOString();
 
   writeDb(db);
-  res.json(withVulnerabilities(asset, db.vulnerabilities));
+
+  res.json(withVulnerabilities(asset, scopedVulnerabilities(db)));
 });
 
-// DELETE /assets/:id - supprimer un actif (et ses vulnérabilités associées)
+// DELETE /assets/:id - supprimer un actif et ses vulnérabilités associées.
 router.delete('/:id', (req, res) => {
   const db = readDb();
   const id = Number(req.params.id);
-  const index = db.assets.findIndex((a) => a.id === id);
+  const allowedIds = scopedAssets(db).map((asset) => asset.id);
+  const index = db.assets.findIndex((a) => a.id === id && allowedIds.includes(a.id));
+
   if (index === -1) {
     throw new ApiError(404, `Actif ${id} introuvable.`);
   }
+
   db.assets.splice(index, 1);
   db.vulnerabilities = db.vulnerabilities.filter((v) => v.assetId !== id);
+
   writeDb(db);
+
   res.status(204).end();
 });
 

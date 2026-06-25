@@ -25,8 +25,13 @@ export function createApp() {
       version: '1.0.0',
       endpoints: [
         'GET /company',
+        'GET /company/all',
+        'GET /company/:id',
         'POST /company',
         'PUT /company',
+        'PUT /company/:id',
+        'POST /company/:id/select',
+        'DELETE /company/:id',
         'GET /assets',
         'GET /assets/:id',
         'POST /assets',

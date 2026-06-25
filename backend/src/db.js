@@ -12,45 +12,101 @@ function getDbPath() {
 }
 
 const DEFAULT_DATA = {
+  companies: [],
+  currentCompanyId: null,
   company: null,
   assets: [],
   vulnerabilities: [],
-  counters: { asset: 0, vulnerability: 0 }
+  counters: { company: 0, asset: 0, vulnerability: 0 }
 };
 
 function ensureFile() {
   const dbPath = getDbPath();
   const dir = dirname(dbPath);
+
   if (!existsSync(dir)) {
     mkdirSync(dir, { recursive: true });
   }
+
   if (!existsSync(dbPath)) {
     writeFileSync(dbPath, JSON.stringify(DEFAULT_DATA, null, 2), 'utf-8');
   }
+}
+
+function normalizeData(data = {}) {
+  const companies = Array.isArray(data.companies)
+    ? data.companies
+    : data.company
+      ? [data.company]
+      : [];
+
+  const companyIds = companies.map((company) => Number(company.id)).filter(Number.isInteger);
+
+  const fallbackCompanyId = companyIds[0] ?? null;
+
+  const currentCompanyId = Number.isInteger(Number(data.currentCompanyId))
+    ? Number(data.currentCompanyId)
+    : fallbackCompanyId;
+
+  const currentCompany =
+    companies.find((company) => company.id === currentCompanyId) || companies[0] || null;
+
+  const selectedId = currentCompany?.id ?? null;
+
+  const assets = Array.isArray(data.assets)
+    ? data.assets.map((asset) => ({
+        ...asset,
+        companyId: Number.isInteger(Number(asset.companyId))
+          ? Number(asset.companyId)
+          : selectedId
+      }))
+    : [];
+
+  const assetCompanyById = assets.reduce((acc, asset) => {
+    acc[asset.id] = asset.companyId ?? null;
+    return acc;
+  }, {});
+
+  const vulnerabilities = Array.isArray(data.vulnerabilities)
+    ? data.vulnerabilities.map((vulnerability) => ({
+        ...vulnerability,
+        companyId: Number.isInteger(Number(vulnerability.companyId))
+          ? Number(vulnerability.companyId)
+          : assetCompanyById[vulnerability.assetId] ?? selectedId
+      }))
+    : [];
+
+  return {
+    companies,
+    currentCompanyId: currentCompany?.id ?? null,
+    company: currentCompany,
+    assets,
+    vulnerabilities,
+    counters: {
+      company: data.counters?.company ?? Math.max(0, ...companyIds, 0),
+      asset: data.counters?.asset ?? Math.max(0, ...assets.map((asset) => asset.id), 0),
+      vulnerability:
+        data.counters?.vulnerability ?? Math.max(0, ...vulnerabilities.map((v) => v.id), 0)
+    }
+  };
 }
 
 export function readDb() {
   ensureFile();
   const raw = readFileSync(getDbPath(), 'utf-8');
   const data = JSON.parse(raw);
-  return {
-    company: data.company ?? null,
-    assets: Array.isArray(data.assets) ? data.assets : [],
-    vulnerabilities: Array.isArray(data.vulnerabilities) ? data.vulnerabilities : [],
-    counters: {
-      asset: data.counters?.asset ?? 0,
-      vulnerability: data.counters?.vulnerability ?? 0
-    }
-  };
+  return normalizeData(data);
 }
 
 export function writeDb(data) {
   ensureFile();
-  writeFileSync(getDbPath(), JSON.stringify(data, null, 2), 'utf-8');
-  return data;
+  const normalized = normalizeData(data);
+  writeFileSync(getDbPath(), JSON.stringify(normalized, null, 2), 'utf-8');
+  return normalized;
 }
 
 export function nextId(data, entity) {
+  data.counters = data.counters || { company: 0, asset: 0, vulnerability: 0 };
   data.counters[entity] = (data.counters[entity] ?? 0) + 1;
   return data.counters[entity];
 }
